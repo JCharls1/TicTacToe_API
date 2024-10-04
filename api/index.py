@@ -25,3 +25,20 @@ def echo():
         return jsonify({"you_sent": data}), 200
     else:
         return jsonify({"error": "Request must be JSON"}), 400
+    
+# POST endpoint that accepts an array of characters
+@app.route('/api/board', methods=['POST'])
+def handle_characters():
+    if not request.is_json:
+        return jsonify({"error": "Request must be JSON"}), 400
+    
+    data = request.get_json()
+
+    # Validate that the data is a list of single characters
+    if not isinstance(data, list) or not all(isinstance(item, str) and len(item) == 1 for item in data):
+        return jsonify({"error": "Invalid input. Expecting an array of single characters."}), 400
+
+    # Example logic: return the received characters in reverse order
+    reversed_data = data[::-1]
+
+    return jsonify({"original": data, "reversed": reversed_data}), 200
