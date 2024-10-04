@@ -26,19 +26,25 @@ def echo():
     else:
         return jsonify({"error": "Request must be JSON"}), 400
     
-# POST endpoint that accepts an array of characters
+# POST endpoint that accepts a JSON object with an array under the "board" key
 @app.route('/api/board', methods=['POST'])
-def handle_characters():
+def handle_board():
     if not request.is_json:
         return jsonify({"error": "Request must be JSON"}), 400
     
     data = request.get_json()
 
-    # Validate that the data is a list of single characters
-    if not isinstance(data, list) or not all(isinstance(item, str) and len(item) == 1 for item in data):
-        return jsonify({"error": "Invalid input. Expecting an array of single characters."}), 400
+    # Validate that the "board" key exists and is an array of single characters
+    if 'board' not in data or not isinstance(data['board'], list):
+        return jsonify({"error": 'Invalid input. Expecting a "board" key with an array of characters.'}), 400
 
-    # Example logic: return the received characters in reverse order
-    reversed_data = data[::-1]
+    board = data['board']
 
-    return jsonify({"original": data, "reversed": reversed_data}), 200
+    # Validate that each element in the board is a single character string
+    if not all(isinstance(item, str) and len(item) == 1 for item in board):
+        return jsonify({"error": "Each item in the board array must be a single character."}), 400
+
+    # Example logic: reverse the board array
+    reversed_board = board[::-1]
+
+    return jsonify({"original": board, "reversed": reversed_board}), 200
